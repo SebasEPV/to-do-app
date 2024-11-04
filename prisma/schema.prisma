@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String  @unique
+  email     String  @unique
+  password  String
+  startTime DateTime //Hora a la que empieza el dia del usaurio
+  endTime   DateTime //Hora a la que termina el dia del usaurio
+
+  Task Task[] //Relacion de 1 Usuario : N Tareas
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  priority    Boolean  @default(false) //true = Prioridad, false = Brain Dump
+  createdAt   DateTime @default(now()) //Fecha y hora a la que se creo la tarea
+  dueDate     DateTime //Fecha y hora de entrega
+  isDeleted   Boolean  @default(false) //true = eliminado logico , false = visible
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])  //Relacion de 1 Usuario : N Tareas
+
+  Activity Activity[] //Relacion de 1 Tarea : N Actividades
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  startTime   DateTime //Fecha y hora en la que se deberia de empezar la actividad
+  endTime     DateTime //Fecha y hora en la que se deberia de terminar la actividad
+  status      Boolean // false = No completada, true = Completada
+  dueDate     DateTime //Fecha y hora de entrega
+  isDeleted   Boolean  @default(false) //true = eliminado logico , false = visible
+
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id])  //Relacion de 1 Tarea : N Actividades
+}
